@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  motion_detect:
+    build:
+     context: .
+     dockerfile: pir.Dockerfile
+    container_name: "motion_detect"
+    restart: unless-stopped
+    environment:
+      - HTTP_URL=http://192.168.7.23:3000
+      - GPIO_PORT=17
+    devices:
+      - "/dev/gpiomem:/dev/gpiomem"
