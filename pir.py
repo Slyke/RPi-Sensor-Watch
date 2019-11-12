@@ -7,9 +7,11 @@ from gpiozero import MotionSensor
 
 pirGpioPort = int(os.environ.get('GPIO_PORT', 17));
 httpUrl = os.environ.get('HTTP_URL', '');
-httpAuth = os.environ.get('HTTP_AUTH', "");
+httpAuthUsername = os.environ.get('HTTP_AUTH_USERNAME', "");
+httpAuthPassword = os.environ.get('HTTP_AUTH_PASSWORD', "");
 httpDataInUrl = bool(os.environ.get('DATA_IN_QUERYSTRING', False));
 httpMethod = os.environ.get('HTTP_METHOD', 'POST');
+stationId = os.environ.get('STATION_ID', 'DoorCam1');
 
 if (httpUrl == ''):
   print("Error: Env var 'HTTP_URL' is not set.");
@@ -17,10 +19,11 @@ if (httpUrl == ''):
 
 pir = MotionSensor(pirGpioPort);
 print("[{} - {}]: Sending Requests To: {}".format(datetime.datetime.now(), time.time(), httpUrl))
-print("[{} - {}]: Auth: {}".format(datetime.datetime.now(), time.time(), not(httpAuth == "")))
+print("[{} - {}]: Auth: {}".format(datetime.datetime.now(), time.time(), (not(httpAuthUsername == "") and not(httpAuthPassword == ""))))
 print("[{} - {}]: httpDataInUrl: {}".format(datetime.datetime.now(), time.time(), httpDataInUrl))
 print("[{} - {}]: Request Method: {}".format(datetime.datetime.now(), time.time(), httpMethod))
 print("[{} - {}]: GPIO: {}".format(datetime.datetime.now(), time.time(), pirGpioPort))
+print("[{} - {}]: StationId: {}".format(datetime.datetime.now(), time.time(), stationId))
 print("")
 print("[{} - {}]: Motion Detector Activated".format(datetime.datetime.now(), time.time()))
 print("")
@@ -28,15 +31,10 @@ print("")
 motionDetected = False
 
 def sendRequest(detectionState):
-  jsonBody = { "motionState": detectionState }
-  response = requests.post(url = httpUrl, json=jsonBody);
+  jsonBody = { "motionState": detectionState, "stationId": stationId }
+  response = requests.request(method = httpMethod, url = httpUrl, json=jsonBody, auth=(httpAuthUsername, httpAuthPassword));
 
   print("Upload: {} - {}".format(response.status_code, response.content));
-
-  #if (response.status_code == 200):
-  #  print("Upload: {} - {}".format(response.status_code, response.content));
-  #elif (response.status_code) == 404:
-  #  print('Not Found.');
 
 try:
   while True:
@@ -52,7 +50,7 @@ try:
       # pir.wait_for_no_motion();
       print("[{} - {}]: Event: 'Motion detection end', ".format(datetime.datetime.now(), time.time()), end = " ");
       sendRequest(False);
-      
+
     sys.stdout.flush();
 
 except KeyboardInterrupt:

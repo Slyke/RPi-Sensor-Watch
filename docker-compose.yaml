@@ -12,3 +12,15 @@ services:
       - GPIO_PORT=17
     devices:
       - "/dev/gpiomem:/dev/gpiomem"
+  dht22:
+    build:
+     context: .
+     dockerfile: dht22.Dockerfile
+    container_name: "dht22"
+    restart: unless-stopped
+    environment:
+      - HTTP_URL=http://192.168.7.23:3000
+      - GPIO_PORT=4
+    devices:
+      - "/dev/gpiomem:/dev/gpiomem"
+    privileged: true

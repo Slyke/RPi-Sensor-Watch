@@ -3,7 +3,6 @@ FROM python:3.7-alpine
 RUN mkdir -p /app
 WORKDIR /app
 
-# RUN apt-get install -y python-requests
 RUN apk add --no-cache -Uu --virtual .build-dependencies python3-dev libffi-dev openssl-dev build-base musl python-dev
 RUN pip3 install --no-cache --upgrade pyserial RPi.GPIO
 RUN apk del --purge .build-dependencies
